@@ -1,0 +1,16 @@
+{
+  "skill": "demo-skill",
+  "version": "1.0.0",
+  "risk_profile": "medium",
+  "individual_trust_rules": {
+    "threshold": 0.75,
+    "rolling_window": 10,
+    "outcome_weights": {
+      "accepted": 1.0,
+      "modified": 0.5,
+      "rejected": 0.0,
+      "cancelled": null,
+      "timeout": null
+    }
+  }
+}

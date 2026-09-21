@@ -1,0 +1,22 @@
+[project]
+name = "skill-trust"
+version = "0.1.0"
+description = "Deterministic trust scoring for interactive LLM skills"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.scripts]
+skill-trust = "skill_trust.scorer:main"
+
+[dependency-groups]
+dev = ["pytest", "ruff"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 100
