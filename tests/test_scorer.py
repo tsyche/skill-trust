@@ -122,4 +122,6 @@ def test_malformed_lines_are_counted_not_fatal(tmp_path):
 def test_cli_on_example_data(capsys):
     assert main([str(EXAMPLES / "trust-manifest.json"), str(EXAMPLES / "events.sample.jsonl")]) == 0
     out = capsys.readouterr().out
+    assert "demo-skill: NOT YET" in out
+    assert "wilson-lower=60.1%" in out
     assert "demo-skill" in out and "abandoned runs: 22% (4/18)" in out
