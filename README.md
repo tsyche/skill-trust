@@ -78,8 +78,9 @@ Outcomes: `opened` (run start, unscored), `accepted`, `modified`, `rejected`,
 
 ## Known limits
 
-- `skill/SKILL.md` still describes dashboard/report modes in prose; only the
-  scorer is code so far. Pointing those modes at the CLI is the next step.
+- `skill/SKILL.md` dashboard/report/recalc call the scorer CLI, but export and
+  the configure wizard are still prose. No integrated skill emits `opened` events
+  yet, so abandonment shows `n/a` until they do.
 - Nothing yet validates that scores predict downstream quality. That meta-eval is
   the open problem.
 - Event logging depends on the calling skill remembering to do it.

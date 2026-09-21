@@ -17,6 +17,10 @@ Check whether `~/.claude/skill-trust/` exists (e.g. `[ -d ~/.claude/skill-trust 
 
 The directory's absence *is* the "not installed" signal — so never create it as a side effect. The gate is self-contained: it never requires the skill-trust skill itself to be loadable, so a distributed skill degrades to a silent no-op for anyone without the framework.
 
+## 0b. Opened event (enables abandonment tracking)
+
+At skill entry, right after the install gate, generate a `run_id` (e.g. `date +%s%N`) and append `{"ts": ..., "skill": ..., "version": ..., "outcome": "opened", "run_id": "{run_id}"}` (same one-shot as below, with `"run_id"` added). Include the same `run_id` in the terminal event. `opened` is unscored; a run with no terminal event after 24h is counted as abandoned by the scorer.
+
 ## 1. Event logging (after each user prompt interaction)
 
 ```

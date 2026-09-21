@@ -50,6 +50,16 @@ Steps:
 2. List their parent directory names as "Configured skills"
 3. Display the help text above
 
+## Scorer CLI
+
+All scoring is done by the tested scorer, never by the model doing arithmetic on the log:
+
+```bash
+python3 "${SKILL_TRUST_SCORER:-$HOME/Repos/skill-trust/src/skill_trust/scorer.py}" MANIFEST ~/.claude/skill-trust/events.jsonl
+```
+
+Prints status (`READY` / `NOT YET` / `NEW` / `UNREACHABLE`), Wilson lower bound (all-time and rolling), abandonment rate, and per-version scores. Override the location with `SKILL_TRUST_SCORER`.
+
 ## File locations
 
 ```
@@ -80,9 +90,8 @@ qa-verify                | 78% (15)    | 78% (15)     | 85%       | NOT YET
 
 Steps:
 1. Find all `trust-manifest.json` files: `find ~/.claude/skills -name "trust-manifest.json"`
-2. Read `~/.claude/skill-trust/events.jsonl`
-3. For each manifest, compute rolling and all-time trust scores
-4. Display the table
+2. Run the scorer CLI once per manifest
+3. Display the table from its output (rolling = `rolling-lower`, all-time = `wilson-lower`)
 
 ---
 
@@ -150,13 +159,10 @@ Detailed breakdown for a single skill.
 
 Steps:
 1. Read `~/.claude/skills/{skill-name}/trust-manifest.json`
-2. Read events.jsonl, filter to this skill
-3. Compute:
-   - All-time score and count
-   - Rolling score (last N per manifest's rolling_window)
-   - Score by skill version (to show improvement/regression across updates)
+2. Run the scorer CLI for the score, rolling score, per-version scores, and abandonment rate
+3. Add what the CLI doesn't cover by reading events.jsonl (filtered to this skill):
    - Outcome distribution (X% accepted, Y% modified, Z% rejected, W% cancelled)
-   - Trend: last 5 invocations' scores
+   - Trend: last 5 invocations' outcomes
    - Export readiness: events since last export, stability metric
 4. Display report
 
@@ -169,7 +175,7 @@ Preview impact of weight/threshold changes without modifying the manifest.
 Steps:
 1. Read current manifest
 2. Apply overrides from args (e.g., `--weights modified=0.7 --threshold 0.85`)
-3. Recompute scores against all historical events
+3. Recompute by running the scorer CLI against a temp copy of the manifest with the overrides applied
 4. Show side-by-side: current config score vs. proposed config score
 5. If proposed score crosses the threshold: warn explicitly — "This change would qualify the skill for autonomous execution recommendation. Apply? [y/n]"
 6. If confirmed, update the manifest (bump `updated` date in notes)
@@ -203,10 +209,14 @@ Steps:
 
 ## Scoring algorithm
 
+The scorer CLI is authoritative. It scores the **Wilson lower bound** of the weighted mean, so a perfect record on a small sample doesn't read as trustworthy:
+
 ```
-score = sum(weight[outcome] for each event where weight is not null) / count(events where weight is not null)
+mean  = sum(weight[outcome]) / count(events where weight is not null)
+score = wilson_lower(mean, n)
 ```
 
+- A gate the window can't clear even with a perfect record reports `UNREACHABLE`
 - Events with `null`-weighted outcomes are excluded entirely (don't count in denominator)
 - Rolling score uses the last `rolling_window` non-null events
 - All-time uses every non-null event ever logged
