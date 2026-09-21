@@ -19,7 +19,7 @@ The directory's absence *is* the "not installed" signal — so never create it a
 
 ## 0b. Opened event (enables abandonment tracking)
 
-At skill entry, right after the install gate, generate a `run_id` (e.g. `date +%s%N`) and append `{"ts": ..., "skill": ..., "version": ..., "outcome": "opened", "run_id": "{run_id}"}` (same one-shot as below, with `"run_id"` added). Include the same `run_id` in the terminal event. `opened` is unscored; a run with no terminal event after 24h is counted as abandoned by the scorer.
+At skill entry, right after the install gate, run `trust-log.py SKILL opened` (helper below) and keep the printed `run_id`. Pass the same `run_id` to the terminal event. `opened` is unscored; a run with no terminal event after 24h is counted as abandoned by the scorer.
 
 ## 1. Event logging (after each user prompt interaction)
 
@@ -28,9 +28,10 @@ After each user prompt where the user accepts, modifies, or rejects a suggestion
 
 {"ts": "{ISO-8601-now}", "skill": "{this-skill-name}", "version": "{version from trust-manifest.json}", "outcome": "{accepted|modified|rejected|cancelled}", "context": {relevant metadata}}
 
-IMPORTANT — get `version` by PARSING the manifest as JSON and reading `.version`. NEVER grep/regex it: a pattern like `v[0-9]*` matches the `v` in the key `"version"` and writes a corrupt, multi-line entry that silently breaks scoring. Then VALIDATE the composed line parses as JSON before treating it as logged. Robust one-shot (works for any integrating skill — set SKILL/OUTCOME and the context):
+Log with the bundled helper, never hand-built JSON (it parses the manifest for `version`, validates the line, and is a no-op when the framework is absent):
 
-  python3 -c 'import json,os,datetime;p=os.path.expanduser;s="{this-skill-name}";m=json.load(open(p(f"~/.claude/skills/{s}/trust-manifest.json")));e={"ts":datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),"skill":s,"version":m["version"],"outcome":"OUTCOME","context":{}};l=json.dumps(e);json.loads(l);open(p("~/.claude/skill-trust/events.jsonl"),"a").write(l+"\n")'
+  ~/.claude/skills/skill-trust/scripts/trust-log.py SKILL opened            # prints a new run_id
+  ~/.claude/skills/skill-trust/scripts/trust-log.py SKILL OUTCOME RUN_ID ['{"repo":"x"}']   # terminal event; optional context JSON
 
 Determine outcome by:
 - User accepted with no changes → "accepted"

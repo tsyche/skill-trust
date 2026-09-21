@@ -73,7 +73,7 @@ Outcomes: `opened` (run start, unscored), `accepted`, `modified`, `rejected`,
 
 - `src/skill_trust/scorer.py`: the scorer and CLI
 - `tests/`: pytest suite
-- `skill/`: the Claude Code skill (`SKILL.md` plus event-logging integration guide)
+- `skill/`: the Claude Code skill (`SKILL.md`, event-logging integration guide, and `scripts/trust-log.py`, the helper skills call to log events)
 - `examples/`: synthetic manifest and events (not real usage data)
 
 ## Known limits

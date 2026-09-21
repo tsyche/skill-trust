@@ -1,0 +1,37 @@
+#!/usr/bin/env python3
+"""Append one skill-trust event. Usage: trust-log.py SKILL OUTCOME [RUN_ID] [CONTEXT_JSON]
+OUTCOME 'opened' with no RUN_ID generates one and prints it. No-op if ~/.claude/skill-trust is absent."""
+import datetime
+import json
+import os
+import sys
+import time
+
+skill, outcome = sys.argv[1], sys.argv[2]
+run_id = sys.argv[3] if len(sys.argv) > 3 else None
+context = json.loads(sys.argv[4]) if len(sys.argv) > 4 else {}
+root = os.path.expanduser("~/.claude")
+if not os.path.isdir(f"{root}/skill-trust"):
+    sys.exit(0)
+if outcome == "opened" and not run_id:
+    run_id = str(time.time_ns())
+    print(run_id)
+try:
+    manifest = json.load(open(f"{root}/skills/{skill}/trust-manifest.json"))
+except (OSError, ValueError) as err:
+    print(f"trust-log: no usable manifest for {skill} ({err}); event not logged", file=sys.stderr)
+    sys.exit(0)
+event = {
+    "ts": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+    "skill": skill,
+    "version": str(manifest["version"]),
+    "outcome": outcome,
+}
+if run_id:
+    event["run_id"] = run_id
+if context:
+    event["context"] = context
+line = json.dumps(event)
+json.loads(line)
+with open(f"{root}/skill-trust/events.jsonl", "a") as f:
+    f.write(line + "\n")
