@@ -12,6 +12,7 @@ def run(home, *args):
         env={"HOME": str(home), "PATH": ""},
         capture_output=True,
         text=True,
+        check=False,
     )
 
 

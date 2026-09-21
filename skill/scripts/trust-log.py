@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Append one skill-trust event. Usage: trust-log.py SKILL OUTCOME [RUN_ID] [CONTEXT_JSON]
 OUTCOME 'opened' with no RUN_ID generates one and prints it. No-op if ~/.claude/skill-trust is absent."""
+
 import datetime
 import json
 import os
@@ -17,12 +18,13 @@ if outcome == "opened" and not run_id:
     run_id = str(time.time_ns())
     print(run_id)
 try:
-    manifest = json.load(open(f"{root}/skills/{skill}/trust-manifest.json"))
+    with open(f"{root}/skills/{skill}/trust-manifest.json") as f:
+        manifest = json.load(f)
 except (OSError, ValueError) as err:
     print(f"trust-log: no usable manifest for {skill} ({err}); event not logged", file=sys.stderr)
     sys.exit(0)
 event = {
-    "ts": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+    "ts": datetime.datetime.now(datetime.UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
     "skill": skill,
     "version": str(manifest["version"]),
     "outcome": outcome,
