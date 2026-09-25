@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Append one skill-trust event. Usage: trust-log.py SKILL OUTCOME [RUN_ID] [CONTEXT_JSON]
-OUTCOME 'opened' with no RUN_ID generates one and prints it. No-op if ~/.claude/skill-trust is absent."""
+OUTCOME 'opened' with no RUN_ID generates one and prints it. No-op if skill-trust
+is absent under SKILL_TRUST_HOME (default ~/.claude)."""
 
 import datetime
 import json
@@ -11,7 +12,7 @@ import time
 skill, outcome = sys.argv[1], sys.argv[2]
 run_id = sys.argv[3] if len(sys.argv) > 3 else None
 context = json.loads(sys.argv[4]) if len(sys.argv) > 4 else {}
-root = os.path.expanduser("~/.claude")
+root = os.path.expanduser(os.environ.get("SKILL_TRUST_HOME", "~/.claude"))
 if not os.path.isdir(f"{root}/skill-trust"):
     sys.exit(0)
 if outcome == "opened" and not run_id:

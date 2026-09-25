@@ -1,6 +1,11 @@
 # Integration instructions for other skills
 
 > Loaded on demand by `SKILL.md` for skill authors wiring up trust tracking — not needed for Dashboard/Report/Recalc/Export/Configure invocations of `/skill-trust` itself.
+>
+> Paths below assume Claude Code's default root (`~/.claude`). On another
+> skill-hosting agent, set `SKILL_TRUST_HOME` to that agent's root (e.g.
+> `~/.codex`) and substitute it in the snippets — the layout is the same:
+> `<root>/skills/` plus `<root>/skill-trust/`.
 
 Skills that opt into trust tracking need the install gate plus two additions to their SKILL.md:
 

@@ -2,8 +2,9 @@
 
 [![ci](https://github.com/tsyche/skill-trust/actions/workflows/ci.yml/badge.svg)](https://github.com/tsyche/skill-trust/actions/workflows/ci.yml)
 
-**tl;dr:** Trust scoring for interactive LLM skills (Claude Code skills, but the
-idea is portable). A deterministic Python scorer turns accept/modify/reject logs
+**tl;dr:** Trust scoring for interactive LLM skills — any agent that keeps
+skills in the usual `<root>/skills/` layout (Claude Code, Codex, opencode…).
+A deterministic Python scorer turns accept/modify/reject logs
 into a Wilson lower-bound score, so a perfect score on six runs doesn't read as
 "trustworthy." Includes the skill definition that logs the events.
 
@@ -73,8 +74,12 @@ Outcomes: `opened` (run start, unscored), `accepted`, `modified`, `rejected`,
 
 - `src/skill_trust/scorer.py`: the scorer and CLI
 - `tests/`: pytest suite
-- `skill/`: the Claude Code skill (`SKILL.md`, event-logging integration guide, and `scripts/trust-log.py`, the helper skills call to log events)
+- `skill/`: the skill definition (`SKILL.md`, event-logging integration guide, and `scripts/trust-log.py`, the helper skills call to log events)
 - `examples/`: synthetic manifest and events (not real usage data)
+
+The default root is Claude Code's (`~/.claude`); set `SKILL_TRUST_HOME` on
+hosts with a different root — the layout is the same everywhere:
+`<root>/skills/` plus `<root>/skill-trust/`.
 
 ## Known limits
 
