@@ -92,6 +92,11 @@ def test_version_spellings_score_together():
     assert score(events, manifest(), NOW).by_version == {"1.0.0": (2, 1.0), "2.0.0": (1, 0.0)}
 
 
+def test_naive_timestamps_are_utc():
+    events = [ev(1, "accepted"), {"ts": "2026-01-02T00:00:00.5", "skill": "s", "outcome": "rejected"}]
+    assert score(events, manifest(), NOW).n == 2
+
+
 def test_other_skills_ignored():
     events = [ev(1, "accepted"), ev(2, "rejected", skill="other")]
     assert score(events, manifest(), NOW).n == 1

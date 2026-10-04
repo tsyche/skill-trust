@@ -54,7 +54,8 @@ def wilson_lower(successes: float, n: int, z: float = Z95) -> float:
 
 
 def parse_ts(ts: str) -> datetime:
-    return datetime.fromisoformat(ts)
+    dt = datetime.fromisoformat(ts)
+    return dt if dt.tzinfo else dt.replace(tzinfo=UTC)  # older loggers wrote naive UTC
 
 
 def load_events(path: Path) -> tuple[list[dict], int]:
