@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10.2.0
+      - uses: astral-sh/setup-uv@v10.3.3
       - run: uv run --with ruff ruff check .
       - run: uv run --with ruff ruff format --check .
       - run: uv run --with pytest pytest -q
